@@ -48,6 +48,7 @@ jobs:
       - name: 📥 Checkout Code (to access configs/)
         uses: actions/checkout@v6
         with:
+          repository: freeza-inc/OnePlus-Remote-Action-Build
           ref: devices
           sparse-checkout: |
             configs/
