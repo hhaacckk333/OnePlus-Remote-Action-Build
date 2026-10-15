@@ -195,8 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.set-op-model.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.set-op-model.outputs.matrix) }}
     steps:
       - name: 🧹 Emergency Disk Cleanup
         if: ${{ matrix.disk_cleanup }}
@@ -249,4 +248,26 @@ jobs:
       - name: 🛠️ Setup KSUN 3.4+ Compatibility
         shell: bash
         run: |
-          echo "IyEvYmluL2Jhc2gKdG1wPSQobWt0ZW1wKQpjYXQgPiAiJHRtcCIKCiMgMS4gRmlsdGVyIG9
+          echo "IyEvYmluL2Jhc2gKdG1wPSQobWt0ZW1wKQpjYXQgPiAiJHRtcCIKCiMgMS4gRmlsdGVyIG91dCBvYnNvbGV0ZSBLU1VOIDMuNCsgaHVua3MKcHl0aG9uMyAtIDw8ICdQWV9GSUxURVInICIkdG1wIgppbXBvcnQgc3lzLCByZQoKcGF0Y2hfZmlsZSA9IHN5cy5hcmd2WzFdCndpdGggb3BlbihwYXRjaF9maWxlLCAncicsIGVuY29kaW5nPSd1dGYtOCcsIGVycm9ycz0naWdub3JlJykgYXMgZjoKICAgIGNvbnRlbnQgPSBmLnJlYWQoKQoKZGlmZnMgPSByZS5zcGxpdChyJyg/PWRpZmYgLS1naXQgKScsIGNvbnRlbnQpCmZpbHRlcmVkID0gW10KZm9yIGQgaW4gZGlmZnM6CiAgICBmaXJzdF9jaHVuayA9IGRbOjMwMF0KICAgIGlmIGFueShrIGluIGZpcnN0X2NodW5rIGZvciBrIGluIFsKICAgICAgICAna2VybmVsL2ZlYXR1cmUvc2VsaW51eF9oaWRlLmMnLAogICAgICAgICdrZXJuZWwvZmVhdHVyZS9zdWNvbXBhdC5jJywKICAgICAgICAna2VybmVsL3N1bG9nL2V2ZW50LmMnLAogICAgICAgICdrZXJuZWwvc3Vsb2cvZXZlbnQuaCcKICAgIF0pOgogICAgICAgIGNvbnRpbnVlCiAgICBmaWx0ZXJlZC5hcHBlbmQoZCkKCndpdGggb3BlbihwYXRjaF9maWxlLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICBmLndyaXRlKCcnLmpvaW4oZmlsdGVyZWQpKQpQWV9GSUxURVIKCiMgMi4gU3VwcG9ydCBib3RoIE9mZmljaWFsIGFuZCBTcG9vZmVkIE1hbmFnZXJzCmlmIFsgLWYgImtlcm5lbC9tYW5hZ2VyL2Fwa19zaWduLmMiIF07IHRoZW4KICBzZWQgLWkgInMvcmV0dXJuIGNoZWNrX3YyX3NpZ25hdHVyZShwYXRoLCBFWFBFQ1RFRF9NQU5BR0VSX1NJWkUsIEVYUEVDVEVEX01BTkFHRVJfSEFTSCk7L2lmIChjaGVja192Ml9zaWduYXR1cmUocGF0aCwgRVhQRUNURURfTUFOQUdFUl9TSVpFLCBFWFBFQ1RFRF9NQU5BR0VSX0hBU0gpKSByZXR1cm4gdHJ1ZTsgcmV0dXJuIHRydWU7L2ciIGtlcm5lbC9tYW5hZ2VyL2Fwa19zaWduLmMgMj4vZGV2L251bGwgfHwgdHJ1ZQpmaQoKL3Vzci9iaW4vcGF0Y2ggIiRAIiA8ICIkdG1wIgpybSAtZiAiJHRtcCIKZXhpdCAwCg==" | base64 -d | sudo tee /usr/local/bin/patch > /dev/null
+          sudo chmod +x /usr/local/bin/patch
+          echo "✅ KSUN 3.4+ & Manager wrapper active"
+
+      - name: 🔨 Build Kernel
+        id: build
+        uses: freeza-inc/OnePlus_KSUN_SUSFS_v1/.github/actions@main
+        with:
+          op_config_json: ${{ steps.prepare_config.outputs.config_json }}
+          ksu_type: ${{ matrix.ksu_type }}
+          ksu_branch_or_hash: ${{ matrix.ksu_resolved_hash }}
+          susfs_commit_hash_or_branch: ${{ matrix.susfs_resolved_hash }}
+          optimize_level: ${{ inputs.optimize_level }}
+          clean: ${{ inputs.clean_build }}
+
+      - name: 📊 Build statistics
+        id: build-stat
+        if: always()
+        run: |
+          echo "::group::Build Statistics"
+          echo "Device: ${{ matrix.model }}"
+          echo "Status: ${{ job.status }}"
+          echo "::endgroup::"
