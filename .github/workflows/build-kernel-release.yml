@@ -214,9 +214,13 @@ jobs:
 
       - name: Install Minimal Dependencies
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends \
-            bison flex git make bc libssl-dev zip curl jq python3 patch ccache
+          set -euo pipefail
+          sudo apt-get -o Acquire::Retries=3 update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            git curl ca-certificates build-essential clang lld flex bison \
+            libelf-dev libssl-dev libncurses-dev zlib1g-dev liblz4-tool \
+            libxml2-utils rsync unzip dwarves file python3 patch ccache jq bc dos2unix kmod libdw-dev elfutils
+          sudo apt-get clean
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
       - name: ⚙️ Configure ccache
