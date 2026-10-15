@@ -216,7 +216,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends \
-            bison flex git make bc libssl-dev zip curl jq python3 patch
+            bison flex git make bc libssl-dev zip curl jq python3 patch ccache
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
       - name: ⚙️ Configure ccache
